@@ -43,7 +43,7 @@ stake_val=1000
 Trading_simulator(strategy=strategy, title_name=title_name, start_date=start_date,
                       end_date=end_date, start_cash=start_cash,
                       commission=commission, stake_val=stake_val,
-                      curr_dir=curr_dir, plott=True)
+                      curr_dir=curr_dir, plott=False)
 
 #Perform your simulation
 #for title_name in titles:
