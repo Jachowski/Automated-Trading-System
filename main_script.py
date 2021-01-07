@@ -37,7 +37,7 @@ start_cash=100000.0
 commission=0.0002 #If you want no commission set 0
 stake_val=1000
 
-#Insert the tickers where you want to perform the simulation on
+#Insert the tickers you want to perform the simulation on
 #titles=['AMZN','GOOGL','MSFT','IBM','FCA','LDO','TSLA','NFLX','G']
 
 Trading_simulator(strategy=strategy, title_name=title_name, start_date=start_date,
