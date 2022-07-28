@@ -17,6 +17,7 @@ import matplotlib
 from pandas_datareader import data, wb
 import yfinance as yf
 
+
 # Create a Strategy Test
 class TestStrategy(bt.Strategy):
 
@@ -26,11 +27,11 @@ class TestStrategy(bt.Strategy):
         print('%s, %s' % (dt.isoformat(), txt))
 
     def __init__(self):
-        # Keep a reference to the "close" line in the data[0] dataseries
+        """Keep a reference to the "close" line in the data[0] dataseries"""
         self.dataclose = self.datas[0].close
 
     def next(self):
-        # Simply log the closing price of the series from the reference
+        """Simply log the closing price of the series from the reference"""
         self.log('Close, %.2f' % self.dataclose[0])
 
         if self.dataclose[0] < self.dataclose[-1]:
@@ -47,23 +48,30 @@ class TestStrategy(bt.Strategy):
 
 # Create a Double Crossover Strategy
 class Cross_Medie(bt.Strategy):
+    """We define the fast average and the slow average"""
     #definiamo la media veloce e la media lenta
     params = (('Med_vel', 50), ('Med_len', 100))
-
-    #inizializziamo le due medie
+    
+    # inizializziamo le due medie
     def __init__(self):
+        """we initialize the two averages"""
         self.sma_vel = btind.SMA(period=self.p.Med_vel)
         self.sma_len = btind.SMA(period=self.p.Med_len)
 
-    #definiamo il segnale di acquisto/vendita
+        # definiamo il segnale di acquisto/vendita
+        # we define the buy / sell signal
         self.buysig = btind.CrossOver(self.sma_vel, self.sma_len)
         
         # salviamo di dati di closing
+        # we save closing data
         self.dataclose = self.datas[0].close
         
-    #Il metodo next racchiude la strategia; 
-    #se siamo in posizione ci fa chiudere e ribaltare altrimenti 
-    #se non siamo in posizione ci fa entrare a mercato    
+    #Il metodo next racchiude la strategia;
+    # The next method encompasses the strategy
+    #se siamo in posizione ci fa chiudere e ribaltare altrimenti
+    # if we are in position it makes us close and overturn otherwise
+    #se non siamo in posizione ci fa entrare a mercato
+    # if we are not in position it allows us to enter the market
              
     def next(self):
         if self.position.size:
@@ -81,20 +89,23 @@ class Cross_Medie(bt.Strategy):
                 self.sell()
                 
     def stampa(self, txt, dt=None):
-        
+        """Print function to understand what is happening"""
         #Funzione di stampe per capire cosa sta accadendo
         dt = dt or self.datas[0].datetime.date(0)
         print('%s, %s' % (dt.isoformat(), txt))
         
     def notify_order(self, order):
+        """buy / sell order accepted"""
         if order.status in [order.Submitted, order.Accepted]:
             # ordine acquisto/vendita accettato
             return
 
         # Verifica se ordine completato
+        # Check if order completed
         if order.status in [order.Completed]:
             if order.isbuy():
           #Stampiamo dettaglio di quantità, prezzo e commissioni
+          # We print quantity, price and commission details
                 self.stampa(
                     'ACQ ESEGUITO, QTY: %.2f, PREZZO: %.2f, COSTO: %.2f, COMM %.2f' %
                     (order.executed.size,
@@ -105,7 +116,7 @@ class Cross_Medie(bt.Strategy):
 
                 self.buyprice = order.executed.price
                 self.buycomm = order.executed.comm
-            else:  # Vendita
+            else:  # Vendita or # Sale or # Sell ?
                 self.stampa('VEND ESEGUITA, QTY: %.2f, PREZZO: %.2f, COSTO: %.2f, COMM %.2f' %
                          (order.executed.size,
                           order.executed.price,
@@ -121,8 +132,8 @@ class Cross_Medie(bt.Strategy):
         self.order = None
         
     # Questa funzione ci restituisce il P&L dell'operazione chiusa
-    
     def notify_trade(self, trade):
+        """This function gives us the P&L of the closed operation"""
         if not trade.isclosed:
             return
         self.stampa('PROFITTO OPERAZIONE, LORDO %.2f, NETTO %.2f' %
